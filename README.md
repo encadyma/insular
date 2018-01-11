@@ -16,6 +16,6 @@ Clone: `git clone https://github.com/encadyma/insular.git && cd insular`
 - **now by ZEIT (https://zeit.co/now)**: `now`
 
 ### License
-Insular is better suited towards the public domain, so Insular is licensed under The Unlicense. [Click here to read more.](https://github.com/encadyma/insular/blob/master/LICENSE)
+Insular is better suited towards the public domain, so Insular is licensed under The Unlicense. [Click here to read more.](https://github.com/encadyma/insular/blob/master/UNLICENSE)
 
 Insular is made possible by [Bootstrap](https://getbootstrap.com/), [Express](https://expressjs.com/), and [Socket.io](https://socket.io/). Font is [Alegreya Sans](https://fonts.google.com/specimen/Alegreya+Sans).
