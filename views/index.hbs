@@ -1,0 +1,46 @@
+<div class="row">
+  <div class="col-9">
+    <h5>Welcome to {{title}}</h5>
+    <div id="app-chatbox" class="insular-chatbox"></div>
+    <form id="app-chat-form">
+      <input id="app-chat-input" type="text" class="form-control">
+    </form>
+  </div>
+  <div class="col-3">
+    <h5>Users</h5>
+    <span id="app-users-list">No users right now...</span>
+  </div>
+</div>
+<script>
+  $(function () {
+    var socket = io();
+    $("#app-chat-form").submit(() => {
+      socket.emit('insular_message', $("#app-chat-input").val());
+      $("#app-chat-input").val('');
+      return false;
+    });
+
+    socket.on('insular_message', ({ message, author }) => {
+      $("#app-chatbox").append(`
+      <div class="insular-chat-msg">
+        <b>${author}:</b> ${message}
+      </div>`);
+      document.getElementById("app-chatbox").scrollTop = document.getElementById("app-chatbox").scrollHeight;
+    });
+
+    socket.on('insular_system', ({ message, name }) => {
+      $("#app-chatbox").append(`
+      <div class="insular-chat-msg insular-msg-system">
+        <b class="insular-text-helptext">SYSTEM (${name}):</b>
+        <div>${message}</div>
+      </div>`);
+    });
+
+    socket.on('insular_get_users_response', (users) => {
+      if (users.length <= 0) { $("#app-users-list").text('No users right now...') }
+      else { $("#app-users-list").text(users.join(', ')) }
+    });
+    
+  });
+</script>
+

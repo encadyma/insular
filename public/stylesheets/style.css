@@ -1,0 +1,40 @@
+body {
+  font: 16px "Alegreya Sans", sans-serif;
+}
+
+a {
+  color: #00B7FF;
+}
+
+mark {
+  border-radius: 4px;
+  padding: 4px 8px;
+  vertical-align: middle;
+}
+
+.insular-padded {
+  padding: 40px 0;
+}
+
+.insular-chatbox {
+  padding: 10px;
+  height: 50vh;
+  overflow-y: scroll;
+}
+
+.insular-chat-msg {
+  padding: 8px 10px; 
+}
+
+.insular-chat-msg:nth-child(even) { background-color: #FEFEFE; }
+.insular-chat-msg:nth-child(odd) { background-color: #FAFAFA; }
+
+.insular-chat-msg.insular-msg-system {
+  background-color: #444;
+  color: #fff;
+}
+
+.insular-text-helptext {
+  font-size: 0.8em;
+  opacity: 0.8;
+}

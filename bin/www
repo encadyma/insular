@@ -1,0 +1,155 @@
+#!/usr/bin/env node
+
+/**
+ * Module dependencies.
+ */
+
+var app = require('../app');
+var debug = require('debug')('insular-demo:server');
+var http = require('http');
+
+/**
+ * Get port from environment and store in Express.
+ */
+
+var port = normalizePort(process.env.PORT || '3000');
+app.set('port', port);
+
+/**
+ * Create HTTP server.
+ */
+
+var server = http.createServer(app);
+var io = require('socket.io')(server);
+
+/**
+ * socket.io code
+ */
+
+io.on('connection', (socket) => {
+  socket.broadcast.emit('insular_system', {
+    message: `A user has connected. Hello, ${socket.id}!`,
+    name: 'Connect'
+  });
+
+  io.emit('insular_get_users_response', Object.keys(io.sockets.connected));
+  socket.emit('insular_system', {
+    message: `
+    Hello, <b>${socket.id}</b>. Welcome to the Insular chat room!<br>
+    You may notice that <i>things</i> <u>are</u> <ruby>a<rt>あ</ruby> <s>little</s> <b>different</b> here. 
+    We're not like other chat rooms.<br><br>
+    Come and stay here with us. Anything is possible here.
+    <i>The only thing you cannot do is <b>leave</b>.</i>`,
+    name: 'Guide to Insular'
+  });
+  
+  socket.on('disconnect', () => {
+    io.emit('insular_system', {
+      message: `${socket.id} has disconnected. See you!`,
+      name: 'Disconnect'
+    });
+    io.emit('insular_get_users_response', Object.keys(io.sockets.connected));
+  });
+
+  socket.on('insular_message', (msg) => {
+    const finalMsg = interpretCommand(msg, socket);
+    if (!finalMsg) return;
+
+    io.emit('insular_message', {
+      message: finalMsg,
+      author: socket.id
+    });
+  });
+
+  socket.on('insular_get_users', (msg) => {
+    socket.emit('insular_get_users_response', Object.keys(io.sockets.connected));
+  });
+});
+
+function interpretCommand (message, socket) {
+  commands = message.split(' ');
+  switch(commands[0]) {
+    case '/me': if (commands[1]) return `<br><i>${socket.id} ${commands.slice(1).join(' ')}</i>`;
+    case '/help':
+      socket.emit('insular_system', {
+        message: `
+<pre style="color:#ccc;">
+List of Commands
+
+/me (message)\t\tSends a message about yourself
+/help\t\t\tGet this message again
+</pre>`,
+        name: 'Help'
+      });
+      break;
+    default: return message;
+  }
+}
+
+/**
+ * Listen on provided port, on all network interfaces.
+ */
+
+server.listen(port);
+server.on('error', onError);
+server.on('listening', onListening);
+
+/**
+ * Normalize a port into a number, string, or false.
+ */
+
+function normalizePort(val) {
+  var port = parseInt(val, 10);
+
+  if (isNaN(port)) {
+    // named pipe
+    return val;
+  }
+
+  if (port >= 0) {
+    // port number
+    return port;
+  }
+
+  return false;
+}
+
+/**
+ * Event listener for HTTP server "error" event.
+ */
+
+function onError(error) {
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+
+  var bind = typeof port === 'string'
+    ? 'Pipe ' + port
+    : 'Port ' + port;
+
+  // handle specific listen errors with friendly messages
+  switch (error.code) {
+    case 'EACCES':
+      console.error(bind + ' requires elevated privileges');
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(bind + ' is already in use');
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+}
+
+/**
+ * Event listener for HTTP server "listening" event.
+ */
+
+function onListening() {
+  var addr = server.address();
+  var bind = typeof addr === 'string'
+    ? 'pipe ' + addr
+    : 'port ' + addr.port;
+  debug('Listening on ' + bind);
+}
